@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="BloodSword.Application/BloodSword.Application.csproj" />
+  <Project Path="BloodSword.Domain/BloodSword.Domain.csproj" />
+  <Project Path="BloodSword.Infrastructure/BloodSword.Infrastructure.csproj" />
+  <Project Path="BloodSword.WebAPI/BloodSword.WebAPI.csproj" />
+</Solution>

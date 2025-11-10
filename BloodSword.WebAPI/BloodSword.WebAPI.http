@@ -1,0 +1,6 @@
+@BloodSword.WebAPI_HostAddress = http://localhost:5075
+
+GET {{BloodSword.WebAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
