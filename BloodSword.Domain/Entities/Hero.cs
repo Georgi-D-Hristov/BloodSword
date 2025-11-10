@@ -7,7 +7,7 @@ namespace BloodSword.Domain.Entities
     public class Hero
     {
         // Уникален идентификатор (Primary Key в базата)
-        public int Id { get; set; }
+        public Guid Id { get; set; }
 
         // Връзка към Identity потребителя (кой е собственикът на този герой)
         // Ще го добавим по-късно като string, защото IdentityUser Id е string по подразбиране.
@@ -25,6 +25,10 @@ namespace BloodSword.Domain.Entities
         public int Awareness { get; set; }
         public int Endurance { get; set; }       // Максимална кръв
         public int CurrentEndurance { get; set; } // Текуща кръв
+
+        // Навигационно property към инвентара
+        // Инициализираме го с празен лист, за да избегнем NullReferenceException
+        public virtual ICollection<InventoryItem> Inventory { get; set; } = new List<InventoryItem>();
 
         // Навигационни property-та за бъдещи връзки (EF Core ги обича)
         // public ICollection<InventoryItem> Inventory { get; set; } = new List<InventoryItem>();
