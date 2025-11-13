@@ -12,9 +12,6 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 // 2. Регистрираме DbContext-а с SQL Server
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
-        // Тази настройка казва на EF Core, че миграциите се намират в WebAPI проекта,
-        // въпреки че самият DbContext е в Infrastructure.
-       // b => b.MigrationsAssembly("BloodSword.WebAPI")));
 
 // 3. Регистрираме Identity
 builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
