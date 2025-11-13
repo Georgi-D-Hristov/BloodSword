@@ -1,4 +1,6 @@
-﻿using BloodSword.Infrastructure.Persistence;
+﻿using BloodSword.Application.Contracts;
+using BloodSword.Infrastructure.Persistence;
+using BloodSword.Infrastructure.Repositories;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -31,6 +33,8 @@ builder.Services.AddControllers();
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+
+builder.Services.AddScoped<IHeroRepository, HeroRepository>();
 
 var app = builder.Build();
 
