@@ -1,4 +1,5 @@
 ﻿using BloodSword.Application.Contracts;
+using BloodSword.Application.Services;
 using BloodSword.Infrastructure.Persistence;
 using BloodSword.Infrastructure.Repositories;
 using Microsoft.AspNetCore.Identity;
@@ -35,6 +36,7 @@ builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 
 builder.Services.AddScoped<IHeroRepository, HeroRepository>();
+builder.Services.AddScoped<IHeroService, HeroService>();
 
 var app = builder.Build();
 
