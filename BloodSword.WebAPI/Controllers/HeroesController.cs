@@ -32,5 +32,25 @@ namespace BloodSword.WebAPI.Controllers
             // (В идеалния REST свят трябва да е CreatedAtAction, но за сега Ok е достатъчно)
             return Ok(createdHero);
         }
+
+        // GET: api/heroes
+        [HttpGet]
+        public async Task<IActionResult> GetAll()
+        {
+            var heroes = await _heroService.GetAllHeroesAsync();
+            return Ok(heroes);
+        }
+
+        // GET: api/heroes/{id}
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetById(Guid id)
+        {
+            var hero = await _heroService.GetHeroByIdAsync(id);
+            if (hero == null)
+            {
+                return NotFound(); // Връща 404, ако няма такъв герой
+            }
+            return Ok(hero);
+        }
     }
 }

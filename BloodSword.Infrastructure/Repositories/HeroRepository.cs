@@ -48,5 +48,10 @@ namespace BloodSword.Infrastructure.Repositories
             _context.Entry(hero).State = EntityState.Modified;
             await _context.SaveChangesAsync();
         }
+
+        public async Task<IEnumerable<Hero>> GetAllAsync()
+        {
+            return await _context.Heroes.ToListAsync();
+        }
     }
 }

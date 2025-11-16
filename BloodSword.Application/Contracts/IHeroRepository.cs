@@ -9,7 +9,8 @@ namespace BloodSword.Application.Contracts
         Task<Hero> GetByIdAsync(Guid id);
         Task<Hero> CreateAsync(Hero hero);
         Task UpdateAsync(Hero hero);
-        Task DeleteAsync(Guid id);
-        // ... тук ще добавяме още по-специфични методи по-късно
+        Task DeleteAsync(Guid id);           
+        Task<IEnumerable<Hero>> GetAllAsync();
     }
 }
+                 
