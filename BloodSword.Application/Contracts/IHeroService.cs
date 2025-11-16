@@ -9,6 +9,7 @@ namespace BloodSword.Application.Contracts
         // Ще приемаме DTO и ще връщаме DTO
         Task<HeroDto> CreateHeroAsync(CreateHeroDto createHeroDto);
 
-        // По-късно ще добавим Get, Update, Delete...
+        Task<IEnumerable<HeroDto>> GetAllHeroesAsync();
+        Task<HeroDto> GetHeroByIdAsync(Guid id);
     }
 }

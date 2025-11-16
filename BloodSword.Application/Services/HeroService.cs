@@ -57,6 +57,8 @@ namespace BloodSword.Application.Services
                     hero.Awareness = 6;
                     hero.Endurance = 7;
                     break;
+                default:
+                    throw new ArgumentException("Invalid hero class selected.");
             }
             hero.CurrentEndurance = hero.Endurance; // Започва с пълна кръв
 
@@ -75,6 +77,41 @@ namespace BloodSword.Application.Services
             };
 
             return heroDto;
+        }
+
+        public async Task<IEnumerable<HeroDto>> GetAllHeroesAsync()
+        {
+            var heroes = await _heroRepository.GetAllAsync();
+
+            // Ръчно мапване на списък (малко досадно, но полезно упражнение)
+            var heroDtos = new List<HeroDto>();
+            foreach (var hero in heroes)
+            {
+                heroDtos.Add(new HeroDto
+                {
+                    Id = hero.Id,
+                    Name = hero.Name,
+                    Class = hero.Class,
+                    Level = hero.Level,
+                    Experience = hero.Experience
+                });
+            }
+            return heroDtos;
+        }
+
+        public async Task<HeroDto> GetHeroByIdAsync(Guid id)
+        {
+            var hero = await _heroRepository.GetByIdAsync(id);
+            if (hero == null) return null; // Или хвърли Exception, ще го обсъдим
+
+            return new HeroDto
+            {
+                Id = hero.Id,
+                Name = hero.Name,
+                Class = hero.Class,
+                Level = hero.Level,
+                Experience = hero.Experience
+            };
         }
     }
 }
