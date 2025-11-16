@@ -1,5 +1,5 @@
 ﻿using BloodSword.Domain.Enums;
-using System.ComponentModel.DataAnnotations; // Ще ни трябва за валидация
+using System.ComponentModel.DataAnnotations;
 
 namespace BloodSword.Application.DTOs
 {
@@ -10,6 +10,7 @@ namespace BloodSword.Application.DTOs
         public string Name { get; set; } = string.Empty;
 
         [Required]
+        [EnumDataType(typeof(HeroClass))] 
         public HeroClass Class { get; set; }
     }
 }
