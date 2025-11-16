@@ -7,49 +7,43 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// --- 1. РЕГИСТРАЦИЯ НА УСЛУГИ ---
 
-// 1. Взимаме connection string-а
+// База данни
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-
-// 2. Регистрираме DbContext-а с SQL Server
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 
-// 3. Регистрираме Identity
-builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
-{
-    // Тук можем да настроим правилата за пароли (по желание)
-    options.Password.RequireDigit = false;
-    options.Password.RequireLowercase = false;
-    options.Password.RequireUppercase = false;
-    options.Password.RequireNonAlphanumeric = false;
-    options.Password.RequiredLength = 6;
-})
-.AddEntityFrameworkStores<ApplicationDbContext>()
-.AddDefaultTokenProviders();
+// Identity
+builder.Services.AddIdentity<IdentityUser, IdentityRole>()
+    .AddEntityFrameworkStores<ApplicationDbContext>()
+    .AddDefaultTokenProviders();
 
-builder.Services.AddControllers();
-
-builder.Services.AddControllers();
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
-
+// Нашите Services и Repositories
 builder.Services.AddScoped<IHeroRepository, HeroRepository>();
 builder.Services.AddScoped<IHeroService, HeroService>();
 
+// Контролери
+builder.Services.AddControllers();
+
+// SWAGGER (Важно!)
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.MapOpenApi();
-}
+// --- 2. MIDDLEWARE PIPELINE (Редът е важен!) ---
+
+// Пускаме Swagger ВИНАГИ (махнахме if-а за теста)
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
+// Важно: Това кара контролерите да работят
 app.MapControllers();
 
 app.Run();
