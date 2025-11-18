@@ -52,5 +52,19 @@ namespace BloodSword.WebAPI.Controllers
             }
             return Ok(hero);
         }
+
+        [HttpPost("{heroId}/items")]
+        public async Task<IActionResult> AddItemToHero(Guid heroId, [FromBody] AddHeroItemDto dto)
+        {
+            try
+            {
+                await _heroService.AddItemToHeroAsync(heroId, dto);
+                return Ok("Item added to inventory.");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }

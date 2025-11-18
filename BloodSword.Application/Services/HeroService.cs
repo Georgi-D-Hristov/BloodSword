@@ -10,11 +10,12 @@ namespace BloodSword.Application.Services
     public class HeroService : IHeroService
     {
         private readonly IHeroRepository _heroRepository;
+        private readonly IItemRepository _itemRepository;
 
-        // Инжектираме Репозиторито, не DbContext!
-        public HeroService(IHeroRepository heroRepository)
+        public HeroService(IHeroRepository heroRepository, IItemRepository itemRepository)
         {
             _heroRepository = heroRepository;
+            _itemRepository = itemRepository;
         }
 
         public async Task<HeroDto> CreateHeroAsync(CreateHeroDto createHeroDto)
@@ -110,8 +111,48 @@ namespace BloodSword.Application.Services
                 Name = hero.Name,
                 Class = hero.Class,
                 Level = hero.Level,
-                Experience = hero.Experience
+                Experience = hero.Experience,
+                Inventory = hero.Inventory.Select(i => new HeroInventoryDto
+                {
+                    ItemName = i.Item.Name,
+                    ItemType = i.Item.Type.ToString(),
+                    Quantity = i.Quantity,
+                    IsEquipped = i.IsEquipped
+                }).ToList()
             };
+        }
+
+        public async Task AddItemToHeroAsync(Guid heroId, AddHeroItemDto dto)
+        {
+            // 1. Взимаме героя (с инвентара му, заради промяната в Repo-то)
+            var hero = await _heroRepository.GetByIdAsync(heroId);
+            if (hero == null) throw new Exception("Hero not found"); // По-добре ползвай къстъм Exception
+
+            // 2. Взимаме предмета, за да сме сигурни, че съществува
+            var item = await _itemRepository.GetByIdAsync(dto.ItemId);
+            if (item == null) throw new Exception("Item not found");
+
+            // 3. Проверяваме дали героят вече има този предмет (Business Logic)
+            var existingInventoryItem = hero.Inventory.FirstOrDefault(ii => ii.ItemId == dto.ItemId);
+
+            if (existingInventoryItem != null)
+            {
+                // Ако го има, просто увеличаваме бройката
+                existingInventoryItem.Quantity += dto.Quantity;
+            }
+            else
+            {
+                // Ако го няма, добавяме нов запис в колекцията
+                hero.Inventory.Add(new Domain.Entities.InventoryItem
+                {
+                    ItemId = item.Id,
+                    HeroId = hero.Id,
+                    Quantity = dto.Quantity
+                });
+            }
+
+            // 4. Запазваме промените чрез Репозиторито на Героя
+            await _heroRepository.UpdateAsync(hero);
         }
     }
 }

@@ -35,11 +35,11 @@ namespace BloodSword.Infrastructure.Repositories
 
         public async Task<Hero> GetByIdAsync(Guid id)
         {
-            // FindAsync е перфектен за търсене по първичен ключ
-            return await _context.Heroes.FindAsync(id);
-
-            // По-късно, ако искаме да заредим и инвентара, ще ползваме:
-            // return await _context.Heroes.Include(h => h.Inventory).FirstOrDefaultAsync(h => h.Id == id);
+            // Използваме .Include, за да заредим свързаните данни (JOIN заявка)
+            return await _context.Heroes
+                .Include(h => h.Inventory)      // Зареди връзката InventoryItem
+                .ThenInclude(ii => ii.Item)     // Зареди и самия Item зад връзката
+                .FirstOrDefaultAsync(h => h.Id == id);
         }
 
         public async Task UpdateAsync(Hero hero)
