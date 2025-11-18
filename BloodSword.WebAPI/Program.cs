@@ -23,6 +23,9 @@ builder.Services.AddIdentity<IdentityUser, IdentityRole>()
 builder.Services.AddScoped<IHeroRepository, HeroRepository>();
 builder.Services.AddScoped<IHeroService, HeroService>();
 
+builder.Services.AddScoped<IItemRepository, ItemRepository>();
+builder.Services.AddScoped<IItemService, ItemService>();
+
 // Контролери
 builder.Services.AddControllers();
 
