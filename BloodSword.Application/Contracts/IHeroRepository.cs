@@ -11,6 +11,7 @@ namespace BloodSword.Application.Contracts
         Task UpdateAsync(Hero hero);
         Task DeleteAsync(Guid id);           
         Task<IEnumerable<Hero>> GetAllAsync();
+        Task<bool> ExistsAsync(string name);
     }
 }
                  

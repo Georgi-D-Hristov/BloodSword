@@ -17,8 +17,14 @@ namespace BloodSword.Application.Services
             _itemRepository = itemRepository;
         }
 
+
         public async Task<ItemDto> CreateItemAsync(CreateItemDto itemDto)
         {
+            if (await _itemRepository.ExistsAsync(itemDto.Name))
+            {
+                throw new InvalidOperationException($"Item with name '{itemDto.Name}' already exists.");
+            }
+
             var item = new Item
             {
                 Id = Guid.NewGuid(),

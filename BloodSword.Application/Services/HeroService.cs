@@ -154,5 +154,61 @@ namespace BloodSword.Application.Services
             // 4. Запазваме промените чрез Репозиторито на Героя
             await _heroRepository.UpdateAsync(hero);
         }
+
+        public async Task EquipItemAsync(Guid heroId, Guid itemId)
+        {
+            var hero = await _heroRepository.GetByIdAsync(heroId);
+            if (hero == null) throw new Exception("Hero not found");
+
+            // Намираме предмета (купчината), който искаме да екипираме
+            // Важно: Търсим такъв, който НЕ Е екипиран в момента
+            var inventoryItemToEquip = hero.Inventory
+                .FirstOrDefault(ii => ii.ItemId == itemId && !ii.IsEquipped);
+
+            if (inventoryItemToEquip == null)
+            {
+                throw new Exception("Hero does not possess this item (or it is already equipped).");
+            }
+
+            // 1. Логика за сваляне на старите (Un-equip)
+            var itemType = inventoryItemToEquip.Item.Type;
+            var currentlyEquipped = hero.Inventory
+                .Where(ii => ii.IsEquipped && ii.Item.Type == itemType)
+                .ToList();
+
+            foreach (var item in currentlyEquipped)
+            {
+                item.IsEquipped = false;
+
+                // ТУК МОЖЕ ДА СЕ ДОБАВИ ЛОГИКА ЗА ОБЕДИНЯВАНЕ (MERGE) ОБРАТНО В СТАКА,
+                // но за момента нека просто го свалим. Ще имаш два реда с Qty:1.
+            }
+
+            // 2. Логика за екипиране (С "Разцепване")
+            if (inventoryItemToEquip.Quantity > 1)
+            {
+                // А: Намаляваме стака
+                inventoryItemToEquip.Quantity -= 1;
+
+                // Б: Създаваме нов запис за екипирания
+                var newEquippedItem = new Domain.Entities.InventoryItem
+                {
+                    HeroId = hero.Id,
+                    ItemId = itemId,
+                    Quantity = 1,
+                    IsEquipped = true
+                };
+
+                // Добавяме го към колекцията на героя
+                hero.Inventory.Add(newEquippedItem);
+            }
+            else
+            {
+                // Ако е само 1 бройка, просто я екипираме
+                inventoryItemToEquip.IsEquipped = true;
+            }
+
+            await _heroRepository.UpdateAsync(hero);
+        }
     }
 }

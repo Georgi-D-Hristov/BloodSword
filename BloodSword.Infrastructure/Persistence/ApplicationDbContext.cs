@@ -42,6 +42,11 @@ namespace BloodSword.Infrastructure.Persistence
                 .WithMany()
                 .HasForeignKey(ii => ii.ItemId)
                 .OnDelete(DeleteBehavior.Restrict); // Ако изтрием Предмет от номенклатурата, НЕ искаме автоматично да изчезне от инвентарите (по-безопасно е да гръмне грешка)
+
+            // УНИКАЛЕН ИНДЕКС ЗА ИМЕТО НА ПРЕДМЕТА
+            builder.Entity<Item>()
+                .HasIndex(i => i.Name)
+                .IsUnique();
         }
     }
 }

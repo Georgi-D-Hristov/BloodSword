@@ -10,5 +10,7 @@ namespace BloodSword.Application.Contracts
         Task<IEnumerable<Item>> GetAllAsync();
         Task<Item> GetByIdAsync(Guid id);
         Task<Item> CreateAsync(Item item);
+
+        Task<bool> ExistsAsync(string name);
     }
 }
