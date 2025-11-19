@@ -2,6 +2,7 @@
 using BloodSword.Application.DTOs;
 using BloodSword.Domain.Entities;
 using BloodSword.Domain.Enums;
+using BloodSword.Domain.Exceptions;
 using System;
 using System.Threading.Tasks;
 
@@ -233,4 +234,5 @@ namespace BloodSword.Application.Services
             await _heroRepository.DeleteAsync(id);
         }
     }
+
 }

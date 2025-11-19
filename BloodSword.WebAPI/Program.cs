@@ -2,51 +2,72 @@
 using BloodSword.Application.Services;
 using BloodSword.Infrastructure.Persistence;
 using BloodSword.Infrastructure.Repositories;
+using BloodSword.WebAPI.Middleware;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Serilog; // <--- НОВ USING
+using Serilog.Sinks.File; // <--- НОВ USING
 
-var builder = WebApplication.CreateBuilder(args);
+// Настройка на Serilog: Чете конфигурацията от appsettings.json
+Log.Logger = new LoggerConfiguration()
+    .ReadFrom.Configuration(new ConfigurationBuilder()
+        .AddJsonFile("appsettings.json")
+        .Build())
+    .Enrich.FromLogContext()
+    .WriteTo.Console()
+    .WriteTo.File("Logs/log-.txt", rollingInterval: RollingInterval.Day) // <--- Запис във файл
+    .CreateLogger();
 
-// --- 1. РЕГИСТРАЦИЯ НА УСЛУГИ ---
+try
+{
+    Log.Information("Starting BloodSword WebAPI host...");
 
-// База данни
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(connectionString));
+    var builder = WebApplication.CreateBuilder(args);
 
-// Identity
-builder.Services.AddIdentity<IdentityUser, IdentityRole>()
-    .AddEntityFrameworkStores<ApplicationDbContext>()
-    .AddDefaultTokenProviders();
+    // Подменяме вградения логър на .NET с нашия Serilog
+    builder.Host.UseSerilog();
 
-// Нашите Services и Repositories
-builder.Services.AddScoped<IHeroRepository, HeroRepository>();
-builder.Services.AddScoped<IHeroService, HeroService>();
+    // 1. РЕГИСТРАЦИЯ НА УСЛУГИ (както преди)
+    var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+    builder.Services.AddDbContext<ApplicationDbContext>(options =>
+        options.UseSqlServer(connectionString));
 
-builder.Services.AddScoped<IItemRepository, ItemRepository>();
-builder.Services.AddScoped<IItemService, ItemService>();
+    builder.Services.AddIdentity<IdentityUser, IdentityRole>()
+        .AddEntityFrameworkStores<ApplicationDbContext>()
+        .AddDefaultTokenProviders();
 
-// Контролери
-builder.Services.AddControllers();
+    // Services/Repositories (DI)
+    builder.Services.AddScoped<IHeroRepository, HeroRepository>();
+    builder.Services.AddScoped<IHeroService, HeroService>();
+    builder.Services.AddControllers();
 
-// SWAGGER (Важно!)
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+    // SWAGGER (за Development)
+    builder.Services.AddEndpointsApiExplorer();
+    builder.Services.AddSwaggerGen();
 
-var app = builder.Build();
+    var app = builder.Build();
 
-// --- 2. MIDDLEWARE PIPELINE (Редът е важен!) ---
+    app.UseMiddleware<ExceptionHandlingMiddleware>();
 
-// Пускаме Swagger ВИНАГИ (махнахме if-а за теста)
-app.UseSwagger();
-app.UseSwaggerUI();
+    // 2. MIDDLEWARE PIPELINE
+    if (app.Environment.IsDevelopment())
+    {
+        app.UseSwagger();
+        app.UseSwaggerUI();
+    }
 
-app.UseHttpsRedirection();
+    app.UseHttpsRedirection();
+    app.UseAuthentication();
+    app.UseAuthorization();
+    app.MapControllers();
 
-app.UseAuthentication();
-app.UseAuthorization();
-
-// Важно: Това кара контролерите да работят
-app.MapControllers();
-
-app.Run();
+    app.Run();
+}
+catch (Exception ex)
+{
+    Log.Fatal(ex, "Host terminated unexpectedly"); // Улавяме фатални грешки при стартиране
+}
+finally
+{
+    Log.CloseAndFlush();
+}
