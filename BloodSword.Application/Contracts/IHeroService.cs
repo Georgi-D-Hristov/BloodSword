@@ -15,5 +15,7 @@ namespace BloodSword.Application.Contracts
         Task AddItemToHeroAsync(Guid heroId, AddHeroItemDto dto);
 
         Task EquipItemAsync(Guid heroId, Guid itemId);
+        Task UpdateHeroAsync(Guid id, UpdateHeroDto dto);
+        Task DeleteHeroAsync(Guid id);
     }
 }

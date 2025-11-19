@@ -81,5 +81,32 @@ namespace BloodSword.WebAPI.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        // PUT: api/heroes/{id}
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update(Guid id, [FromBody] UpdateHeroDto dto)
+        {
+            try
+            {
+                await _heroService.UpdateHeroAsync(id, dto);
+                // 204 No Content е стандартен отговор за успешен PUT/UPDATE
+                return NoContent();
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound(); // 404 Not Found, ако ID-то не съществува
+            }
+        }
+
+        // DELETE: api/heroes/{id}
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(Guid id)
+        {
+            // Тук не проверяваме дали героят съществува, защото DeleteAsync на Repo-то
+            // просто не прави нищо, ако не го намери, и ние връщаме 204 (No Content)
+            // независимо от резултата (за по-добра сигурност).
+            await _heroService.DeleteHeroAsync(id);
+            return NoContent(); // 204 No Content
+        }
     }
 }
