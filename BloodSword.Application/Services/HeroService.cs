@@ -83,6 +83,7 @@ namespace BloodSword.Application.Services
 
         public async Task<IEnumerable<HeroDto>> GetAllHeroesAsync()
         {
+            //throw new Exception("Simulated critical error.");
             var heroes = await _heroRepository.GetAllAsync();
 
             // Ръчно мапване на списък (малко досадно, но полезно упражнение)

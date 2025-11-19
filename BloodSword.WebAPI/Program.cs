@@ -37,6 +37,7 @@ try
         .AddDefaultTokenProviders();
 
     // Services/Repositories (DI)
+    builder.Services.AddScoped<IItemRepository, ItemRepository>();
     builder.Services.AddScoped<IHeroRepository, HeroRepository>();
     builder.Services.AddScoped<IHeroService, HeroService>();
     builder.Services.AddControllers();
