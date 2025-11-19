@@ -33,5 +33,10 @@ namespace BloodSword.Infrastructure.Repositories
         {
             return await _context.Items.FindAsync(id);
         }
+
+        public async Task<bool> ExistsAsync(string name)
+        {
+            return await _context.Items.AnyAsync(i => i.Name == name);
+        }
     }
 }
