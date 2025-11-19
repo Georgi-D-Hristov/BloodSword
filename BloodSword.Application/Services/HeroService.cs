@@ -210,5 +210,27 @@ namespace BloodSword.Application.Services
 
             await _heroRepository.UpdateAsync(hero);
         }
+
+        public async Task UpdateHeroAsync(Guid id, UpdateHeroDto dto)
+        {
+            // 1. Взимаме героя от базата
+            var hero = await _heroRepository.GetByIdAsync(id);
+            if (hero == null)
+            {
+                throw new KeyNotFoundException($"Hero with ID {id} not found.");
+            }
+
+            // 2. Бизнес логика / Мапване (само името)
+            hero.Name = dto.Name;
+
+            // 3. Запазваме промените
+            await _heroRepository.UpdateAsync(hero);
+        }
+
+        public async Task DeleteHeroAsync(Guid id)
+        {
+            // Репозиторито само ще провери и изтрие
+            await _heroRepository.DeleteAsync(id);
+        }
     }
 }
