@@ -5,8 +5,11 @@ using BloodSword.Infrastructure.Repositories;
 using BloodSword.WebAPI.Middleware;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Serilog; // <--- НОВ USING
-using Serilog.Sinks.File; // <--- НОВ USING
+using Microsoft.OpenApi;
+//using Microsoft.OpenApi.Models;
+
+using Serilog;
+using Serilog.Sinks.File;
 
 // Настройка на Serilog: Чете конфигурацията от appsettings.json
 Log.Logger = new LoggerConfiguration()
@@ -39,6 +42,7 @@ try
     // Services/Repositories (DI)
     builder.Services.AddScoped<IHeroRepository, HeroRepository>();
     builder.Services.AddScoped<IHeroService, HeroService>();
+    builder.Services.AddScoped<IItemRepository, ItemRepository>();
     builder.Services.AddControllers();
 
     // SWAGGER (за Development)
@@ -60,6 +64,15 @@ try
     app.UseAuthentication();
     app.UseAuthorization();
     app.MapControllers();
+
+    using (var scope = app.Services.CreateScope())
+    {
+        var services = scope.ServiceProvider;
+
+        // Изпълняваме асинхронната seeding логика и чакаме да приключи
+        await BloodSword.Infrastructure.Persistence.ApplicationDbContextSeed.SeedRolesAndAdminAsync(services);
+    }
+    // ---------------------------------------
 
     app.Run();
 }

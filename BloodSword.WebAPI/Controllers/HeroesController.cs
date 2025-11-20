@@ -1,5 +1,6 @@
 ﻿using BloodSword.Application.Contracts;
 using BloodSword.Application.DTOs;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 
@@ -99,6 +100,7 @@ namespace BloodSword.WebAPI.Controllers
         }
 
         // DELETE: api/heroes/{id}
+        [Authorize(Roles = UserRoles.Admin)]
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(Guid id)
         {
