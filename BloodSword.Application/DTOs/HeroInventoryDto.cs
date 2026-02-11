@@ -2,8 +2,8 @@
 {
     public class HeroInventoryDto
     {
-        public required string ItemName { get; set; }
-        public required string ItemType { get; set; }
+        public string ItemName { get; set; } = string.Empty;
+        public string ItemType { get; set; } = string.Empty;
         public int Quantity { get; set; }
         public bool IsEquipped { get; set; }
     }
