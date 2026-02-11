@@ -5,6 +5,9 @@ using BloodSword.Domain.Enums;
 
 namespace BloodSword.Application.Services
 {
+    /// <summary>
+    /// Service for managing heroes in the game
+    /// </summary>
     public class HeroService : IHeroService
     {
         private readonly IHeroRepository _heroRepository;
@@ -16,6 +19,9 @@ namespace BloodSword.Application.Services
             _itemRepository = itemRepository;
         }
 
+        /// <summary>
+        /// Creates a new hero with initial stats based on class
+        /// </summary>
         public async Task<HeroDto> CreateHeroAsync(CreateHeroDto createHeroDto)
         {
             var hero = new Hero
@@ -73,6 +79,9 @@ namespace BloodSword.Application.Services
             return heroDto;
         }
 
+        /// <summary>
+        /// Gets all heroes in the system
+        /// </summary>
         public async Task<IEnumerable<HeroDto>> GetAllHeroesAsync()
         {
             var heroes = await _heroRepository.GetAllAsync();
@@ -92,6 +101,9 @@ namespace BloodSword.Application.Services
             return heroDtos;
         }
 
+        /// <summary>
+        /// Gets a hero by ID with inventory details
+        /// </summary>
         public async Task<HeroDto?> GetHeroByIdAsync(Guid id)
         {
             var hero = await _heroRepository.GetByIdAsync(id);
@@ -114,6 +126,9 @@ namespace BloodSword.Application.Services
             };
         }
 
+        /// <summary>
+        /// Adds an item to a hero's inventory
+        /// </summary>
         public async Task AddItemToHeroAsync(Guid heroId, AddHeroItemDto dto)
         {
             var hero = await _heroRepository.GetByIdAsync(heroId);
@@ -141,6 +156,9 @@ namespace BloodSword.Application.Services
             await _heroRepository.UpdateAsync(hero);
         }
 
+        /// <summary>
+        /// Equips an item from the hero's inventory
+        /// </summary>
         public async Task EquipItemAsync(Guid heroId, Guid itemId)
         {
             var hero = await _heroRepository.GetByIdAsync(heroId);
@@ -188,6 +206,9 @@ namespace BloodSword.Application.Services
             await _heroRepository.UpdateAsync(hero);
         }
 
+        /// <summary>
+        /// Updates a hero's name
+        /// </summary>
         public async Task UpdateHeroAsync(Guid id, UpdateHeroDto dto)
         {
             var hero = await _heroRepository.GetByIdAsync(id);
@@ -201,6 +222,9 @@ namespace BloodSword.Application.Services
             await _heroRepository.UpdateAsync(hero);
         }
 
+        /// <summary>
+        /// Deletes a hero from the system
+        /// </summary>
         public async Task DeleteHeroAsync(Guid id)
         {
             await _heroRepository.DeleteAsync(id);

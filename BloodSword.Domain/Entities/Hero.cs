@@ -2,6 +2,9 @@
 
 namespace BloodSword.Domain.Entities
 {
+    /// <summary>
+    /// Represents a hero character in the game
+    /// </summary>
     public class Hero
     {
         public Guid Id { get; set; }
@@ -10,7 +13,6 @@ namespace BloodSword.Domain.Entities
         public int Level { get; set; } = 1;
         public int Experience { get; set; } = 0;
 
-        // Core statistics from the game
         public int FightingProwess { get; set; }
         public int PsychicAbility { get; set; }
         public int Awareness { get; set; }
@@ -21,6 +23,9 @@ namespace BloodSword.Domain.Entities
 
         public bool IsAlive => CurrentEndurance > 0;
 
+        /// <summary>
+        /// Reduces the hero's current endurance by the specified damage amount
+        /// </summary>
         public void TakeDamage(int damage)
         {
             if (damage < 0) damage = 0;
@@ -28,6 +33,9 @@ namespace BloodSword.Domain.Entities
             if (CurrentEndurance < 0) CurrentEndurance = 0;
         }
 
+        /// <summary>
+        /// Restores the hero's current endurance, up to the maximum
+        /// </summary>
         public void Heal(int amount)
         {
             if (amount < 0) return;

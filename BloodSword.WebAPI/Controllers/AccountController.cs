@@ -69,13 +69,14 @@ namespace BloodSword.WebAPI.Controllers
                     authClaims.Add(new Claim(ClaimTypes.Role, userRole));
                 }
 
-                // TODO: Move JWT secret to configuration
-                var authSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("TovaEmnogoDylgaTajnaParolaZaTokenite123!"));
+                var jwtSecret = _configuration["Jwt:Secret"] ?? throw new InvalidOperationException("JWT secret not configured");
+                var authSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret));
 
+                var expirationHours = int.Parse(_configuration["Jwt:ExpirationHours"] ?? "3");
                 var token = new JwtSecurityToken(
                     issuer: null,
                     audience: null,
-                    expires: DateTime.Now.AddHours(3),
+                    expires: DateTime.Now.AddHours(expirationHours),
                     claims: authClaims,
                     signingCredentials: new SigningCredentials(authSigningKey, SecurityAlgorithms.HmacSha256)
                 );

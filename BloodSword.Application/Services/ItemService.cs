@@ -4,6 +4,9 @@ using BloodSword.Domain.Entities;
 
 namespace BloodSword.Application.Services
 {
+    /// <summary>
+    /// Service for managing game items
+    /// </summary>
     public class ItemService : IItemService
     {
         private readonly IItemRepository _itemRepository;
@@ -13,6 +16,9 @@ namespace BloodSword.Application.Services
             _itemRepository = itemRepository;
         }
 
+        /// <summary>
+        /// Creates a new item with unique name validation
+        /// </summary>
         public async Task<ItemDto> CreateItemAsync(CreateItemDto itemDto)
         {
             if (await _itemRepository.ExistsAsync(itemDto.Name))
@@ -35,6 +41,9 @@ namespace BloodSword.Application.Services
             return MapToDto(createdItem);
         }
 
+        /// <summary>
+        /// Gets all items in the game
+        /// </summary>
         public async Task<IEnumerable<ItemDto>> GetAllItemsAsync()
         {
             var items = await _itemRepository.GetAllAsync();

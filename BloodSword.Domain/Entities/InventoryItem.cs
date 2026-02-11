@@ -1,5 +1,8 @@
 ﻿namespace BloodSword.Domain.Entities
 {
+    /// <summary>
+    /// Represents a link between a hero and an item in their inventory
+    /// </summary>
     public class InventoryItem
     {
         public Guid Id { get; set; }
