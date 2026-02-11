@@ -5,20 +5,17 @@ using BloodSword.Infrastructure.Repositories;
 using BloodSword.WebAPI.Middleware;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.OpenApi;
-//using Microsoft.OpenApi.Models;
-
 using Serilog;
 using Serilog.Sinks.File;
 
-// Настройка на Serilog: Чете конфигурацията от appsettings.json
+// Configure Serilog: Reads configuration from appsettings.json
 Log.Logger = new LoggerConfiguration()
     .ReadFrom.Configuration(new ConfigurationBuilder()
         .AddJsonFile("appsettings.json")
         .Build())
     .Enrich.FromLogContext()
     .WriteTo.Console()
-    .WriteTo.File("Logs/log-.txt", rollingInterval: RollingInterval.Day) // <--- Запис във файл
+    .WriteTo.File("Logs/log-.txt", rollingInterval: RollingInterval.Day)
     .CreateLogger();
 
 try
@@ -27,10 +24,10 @@ try
 
     var builder = WebApplication.CreateBuilder(args);
 
-    // Подменяме вградения логър на .NET с нашия Serilog
+    // Replace the built-in .NET logger with Serilog
     builder.Host.UseSerilog();
 
-    // 1. РЕГИСТРАЦИЯ НА УСЛУГИ (както преди)
+    // 1. Service Registration
     var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
     builder.Services.AddDbContext<ApplicationDbContext>(options =>
         options.UseSqlServer(connectionString));
@@ -43,15 +40,16 @@ try
     builder.Services.AddScoped<IHeroRepository, HeroRepository>();
     builder.Services.AddScoped<IHeroService, HeroService>();
     builder.Services.AddScoped<IItemRepository, ItemRepository>();
+    builder.Services.AddScoped<IItemService, ItemService>();
     builder.Services.AddControllers();
 
-    // SWAGGER (за Development)
+    // Swagger (for Development)
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen();
 
     var app = builder.Build();
 
-    // 2. MIDDLEWARE PIPELINE
+    // 2. Middleware Pipeline
     app.UseMiddleware<ExceptionHandlingMiddleware>();
 
     if (app.Environment.IsDevelopment())
@@ -69,16 +67,15 @@ try
     {
         var services = scope.ServiceProvider;
 
-        // Изпълняваме асинхронната seeding логика и чакаме да приключи
+        // Execute asynchronous seeding logic and wait for completion
         await BloodSword.Infrastructure.Persistence.ApplicationDbContextSeed.SeedRolesAndAdminAsync(services);
     }
-    // ---------------------------------------
 
     app.Run();
 }
 catch (Exception ex)
 {
-    Log.Fatal(ex, "Host terminated unexpectedly"); // Улавяме фатални грешки при стартиране
+    Log.Fatal(ex, "Host terminated unexpectedly");
 }
 finally
 {

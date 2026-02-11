@@ -1,10 +1,6 @@
 ﻿using BloodSword.Application.Contracts;
 using BloodSword.Application.DTOs;
 using BloodSword.Domain.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace BloodSword.Application.Services
 {
@@ -16,7 +12,6 @@ namespace BloodSword.Application.Services
         {
             _itemRepository = itemRepository;
         }
-
 
         public async Task<ItemDto> CreateItemAsync(CreateItemDto itemDto)
         {
@@ -46,7 +41,6 @@ namespace BloodSword.Application.Services
             return items.Select(MapToDto);
         }
 
-        // Helper метод за мапване (за да не повтаряме кода)
         private static ItemDto MapToDto(Item item)
         {
             return new ItemDto
@@ -54,7 +48,7 @@ namespace BloodSword.Application.Services
                 Id = item.Id,
                 Name = item.Name,
                 Description = item.Description,
-                Type = item.Type.ToString(), // Enum към String ("Weapon")
+                Type = item.Type.ToString(),
                 DamageModifier = item.DamageModifier,
                 ArmorValue = item.ArmorValue
             };

@@ -2,9 +2,6 @@
 using BloodSword.Domain.Entities;
 using BloodSword.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace BloodSword.Infrastructure.Repositories
 {
@@ -29,7 +26,7 @@ namespace BloodSword.Infrastructure.Repositories
             return await _context.Items.ToListAsync();
         }
 
-        public async Task<Item> GetByIdAsync(Guid id)
+        public async Task<Item?> GetByIdAsync(Guid id)
         {
             return await _context.Items.FindAsync(id);
         }

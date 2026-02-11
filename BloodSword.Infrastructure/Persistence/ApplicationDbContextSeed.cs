@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using BloodSword.Application.Contracts;
-using System.Threading.Tasks;
 
 namespace BloodSword.Infrastructure.Persistence
 {
@@ -12,13 +11,11 @@ namespace BloodSword.Infrastructure.Persistence
             var userManager = serviceProvider.GetRequiredService<UserManager<IdentityUser>>();
             var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
 
-            // 1. Създаване на ролите
             await EnsureRoleExistsAsync(roleManager, UserRoles.Admin);
             await EnsureRoleExistsAsync(roleManager, UserRoles.Player);
 
-            // 2. Създаване на първия Admin потребител
             const string adminUsername = "admin";
-            const string adminPassword = "SecureP@ssw0rd1!"; // МОЛЯ, СМЕНИ ТАЗИ ПАРОЛА!
+            const string adminPassword = "SecureP@ssw0rd1!";
 
             var adminUser = await userManager.FindByNameAsync(adminUsername);
 
@@ -35,7 +32,6 @@ namespace BloodSword.Infrastructure.Persistence
 
                 if (result.Succeeded)
                 {
-                    // 3. Присвояване на Admin ролята
                     await userManager.AddToRoleAsync(adminUser, UserRoles.Admin);
                 }
             }
