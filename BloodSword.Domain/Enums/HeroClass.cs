@@ -2,9 +2,9 @@
 {
     public enum HeroClass
     {
-        Warrior = 1, //Воин
-        Sage = 2, //Мъдърец
-        Trickster = 3,//Тарикат
-        Enchanter = 4 //Магьосник
+        Warrior = 1,
+        Sage = 2,
+        Trickster = 3,
+        Enchanter = 4
     }
 }

@@ -2,8 +2,6 @@
 using BloodSword.Domain.Entities;
 using BloodSword.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Threading.Tasks;
 
 namespace BloodSword.Infrastructure.Repositories
 {
@@ -33,18 +31,16 @@ namespace BloodSword.Infrastructure.Repositories
             }
         }
 
-        public async Task<Hero> GetByIdAsync(Guid id)
+        public async Task<Hero?> GetByIdAsync(Guid id)
         {
-            // Използваме .Include, за да заредим свързаните данни (JOIN заявка)
             return await _context.Heroes
-                .Include(h => h.Inventory)      // Зареди връзката InventoryItem
-                .ThenInclude(ii => ii.Item)     // Зареди и самия Item зад връзката
+                .Include(h => h.Inventory)
+                .ThenInclude(ii => ii.Item)
                 .FirstOrDefaultAsync(h => h.Id == id);
         }
 
         public async Task UpdateAsync(Hero hero)
         {
-            // Казваме на EF Core, че този обект е "променен"
             _context.Entry(hero).State = EntityState.Modified;
             await _context.SaveChangesAsync();
         }

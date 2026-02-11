@@ -2,11 +2,12 @@
 using BloodSword.Application.DTOs;
 using BloodSword.Domain.Entities;
 using BloodSword.Domain.Enums;
-using System;
-using System.Threading.Tasks;
 
 namespace BloodSword.Application.Services
 {
+    /// <summary>
+    /// Service for managing heroes in the game
+    /// </summary>
     public class HeroService : IHeroService
     {
         private readonly IHeroRepository _heroRepository;
@@ -18,20 +19,21 @@ namespace BloodSword.Application.Services
             _itemRepository = itemRepository;
         }
 
+        /// <summary>
+        /// Creates a new hero with initial stats based on class
+        /// </summary>
         public async Task<HeroDto> CreateHeroAsync(CreateHeroDto createHeroDto)
         {
-            // --- 1. Ръчно Мапване (DTO -> Entity) ---
             var hero = new Hero
             {
-                Id = Guid.NewGuid(), // Генерираме ID тук
+                Id = Guid.NewGuid(),
                 Name = createHeroDto.Name,
                 Class = createHeroDto.Class,
                 Level = 1,
                 Experience = 0
             };
 
-            // --- 2. Прилагане на Бизнес Логика (Правилата на играта) ---
-            // Това е мястото, където Service-ът блести!
+            // Apply game rules based on hero class
             switch (hero.Class)
             {
                 case HeroClass.Warrior:
@@ -61,13 +63,10 @@ namespace BloodSword.Application.Services
                 default:
                     throw new ArgumentException("Invalid hero class selected.");
             }
-            hero.CurrentEndurance = hero.Endurance; // Започва с пълна кръв
+            hero.CurrentEndurance = hero.Endurance;
 
-            // --- 3. Извикване на Репозиторито ---
             var newHero = await _heroRepository.CreateAsync(hero);
 
-            // --- 4. Ръчно Мапване (Entity -> DTO) ---
-            // Връщаме DTO, а не Entity-то!
             var heroDto = new HeroDto
             {
                 Id = newHero.Id,
@@ -80,11 +79,13 @@ namespace BloodSword.Application.Services
             return heroDto;
         }
 
+        /// <summary>
+        /// Gets all heroes in the system
+        /// </summary>
         public async Task<IEnumerable<HeroDto>> GetAllHeroesAsync()
         {
             var heroes = await _heroRepository.GetAllAsync();
 
-            // Ръчно мапване на списък (малко досадно, но полезно упражнение)
             var heroDtos = new List<HeroDto>();
             foreach (var hero in heroes)
             {
@@ -100,10 +101,13 @@ namespace BloodSword.Application.Services
             return heroDtos;
         }
 
-        public async Task<HeroDto> GetHeroByIdAsync(Guid id)
+        /// <summary>
+        /// Gets a hero by ID with inventory details
+        /// </summary>
+        public async Task<HeroDto?> GetHeroByIdAsync(Guid id)
         {
             var hero = await _heroRepository.GetByIdAsync(id);
-            if (hero == null) return null; // Или хвърли Exception, ще го обсъдим
+            if (hero == null) return null;
 
             return new HeroDto
             {
@@ -122,27 +126,25 @@ namespace BloodSword.Application.Services
             };
         }
 
+        /// <summary>
+        /// Adds an item to a hero's inventory
+        /// </summary>
         public async Task AddItemToHeroAsync(Guid heroId, AddHeroItemDto dto)
         {
-            // 1. Взимаме героя (с инвентара му, заради промяната в Repo-то)
             var hero = await _heroRepository.GetByIdAsync(heroId);
-            if (hero == null) throw new Exception("Hero not found"); // По-добре ползвай къстъм Exception
+            if (hero == null) throw new Exception("Hero not found");
 
-            // 2. Взимаме предмета, за да сме сигурни, че съществува
             var item = await _itemRepository.GetByIdAsync(dto.ItemId);
             if (item == null) throw new Exception("Item not found");
 
-            // 3. Проверяваме дали героят вече има този предмет (Business Logic)
             var existingInventoryItem = hero.Inventory.FirstOrDefault(ii => ii.ItemId == dto.ItemId);
 
             if (existingInventoryItem != null)
             {
-                // Ако го има, просто увеличаваме бройката
                 existingInventoryItem.Quantity += dto.Quantity;
             }
             else
             {
-                // Ако го няма, добавяме нов запис в колекцията
                 hero.Inventory.Add(new Domain.Entities.InventoryItem
                 {
                     ItemId = item.Id,
@@ -151,17 +153,17 @@ namespace BloodSword.Application.Services
                 });
             }
 
-            // 4. Запазваме промените чрез Репозиторито на Героя
             await _heroRepository.UpdateAsync(hero);
         }
 
+        /// <summary>
+        /// Equips an item from the hero's inventory
+        /// </summary>
         public async Task EquipItemAsync(Guid heroId, Guid itemId)
         {
             var hero = await _heroRepository.GetByIdAsync(heroId);
             if (hero == null) throw new Exception("Hero not found");
 
-            // Намираме предмета (купчината), който искаме да екипираме
-            // Важно: Търсим такъв, който НЕ Е екипиран в момента
             var inventoryItemToEquip = hero.Inventory
                 .FirstOrDefault(ii => ii.ItemId == itemId && !ii.IsEquipped);
 
@@ -170,7 +172,7 @@ namespace BloodSword.Application.Services
                 throw new Exception("Hero does not possess this item (or it is already equipped).");
             }
 
-            // 1. Логика за сваляне на старите (Un-equip)
+            // Unequip items of the same type
             var itemType = inventoryItemToEquip.Item.Type;
             var currentlyEquipped = hero.Inventory
                 .Where(ii => ii.IsEquipped && ii.Item.Type == itemType)
@@ -179,18 +181,13 @@ namespace BloodSword.Application.Services
             foreach (var item in currentlyEquipped)
             {
                 item.IsEquipped = false;
-
-                // ТУК МОЖЕ ДА СЕ ДОБАВИ ЛОГИКА ЗА ОБЕДИНЯВАНЕ (MERGE) ОБРАТНО В СТАКА,
-                // но за момента нека просто го свалим. Ще имаш два реда с Qty:1.
             }
 
-            // 2. Логика за екипиране (С "Разцепване")
+            // Equip the item (with stack splitting if necessary)
             if (inventoryItemToEquip.Quantity > 1)
             {
-                // А: Намаляваме стака
                 inventoryItemToEquip.Quantity -= 1;
 
-                // Б: Създаваме нов запис за екипирания
                 var newEquippedItem = new Domain.Entities.InventoryItem
                 {
                     HeroId = hero.Id,
@@ -199,37 +196,37 @@ namespace BloodSword.Application.Services
                     IsEquipped = true
                 };
 
-                // Добавяме го към колекцията на героя
                 hero.Inventory.Add(newEquippedItem);
             }
             else
             {
-                // Ако е само 1 бройка, просто я екипираме
                 inventoryItemToEquip.IsEquipped = true;
             }
 
             await _heroRepository.UpdateAsync(hero);
         }
 
+        /// <summary>
+        /// Updates a hero's name
+        /// </summary>
         public async Task UpdateHeroAsync(Guid id, UpdateHeroDto dto)
         {
-            // 1. Взимаме героя от базата
             var hero = await _heroRepository.GetByIdAsync(id);
             if (hero == null)
             {
                 throw new KeyNotFoundException($"Hero with ID {id} not found.");
             }
 
-            // 2. Бизнес логика / Мапване (само името)
             hero.Name = dto.Name;
 
-            // 3. Запазваме промените
             await _heroRepository.UpdateAsync(hero);
         }
 
+        /// <summary>
+        /// Deletes a hero from the system
+        /// </summary>
         public async Task DeleteHeroAsync(Guid id)
         {
-            // Репозиторито само ще провери и изтрие
             await _heroRepository.DeleteAsync(id);
         }
     }

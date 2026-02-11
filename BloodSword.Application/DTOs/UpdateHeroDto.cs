@@ -7,8 +7,5 @@ namespace BloodSword.Application.DTOs
         [Required]
         [StringLength(50, MinimumLength = 3)]
         public string Name { get; set; } = string.Empty;
-
-        // Ние не позволяваме на клиента да променя Level или Stats директно,
-        // защото това е работа на CombatService/LevelUpService.
     }
 }

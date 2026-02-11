@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace BloodSword.Application.DTOs
+﻿namespace BloodSword.Application.DTOs
 {
     public class HeroInventoryDto
     {
-        public string ItemName { get; set; }
-        public string ItemType { get; set; }
+        public string ItemName { get; set; } = string.Empty;
+        public string ItemType { get; set; } = string.Empty;
         public int Quantity { get; set; }
         public bool IsEquipped { get; set; }
     }

@@ -1,7 +1,6 @@
 ﻿using BloodSword.Application.Contracts;
 using BloodSword.Application.DTOs;
 using Microsoft.AspNetCore.Mvc;
-using System.Threading.Tasks;
 
 namespace BloodSword.WebAPI.Controllers
 {
